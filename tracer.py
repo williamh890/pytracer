@@ -1,45 +1,30 @@
+from ray import Ray
+from p3 import P3Image
+from utils import normalized, vec3, pixel
+
 import numpy as np
 
 
-class P3Image:
-    def __init__(self, pixels):
-        self.pixels = pixels
-        width, height = pixels.shape
+def get_example_pixels_np():
+    pixels = np.empty([200, 100, 3], dtype="float")
+    width, height, channels = pixels.shape
 
-        self.width = width
-        self.height = height
+    lower_left_corner = vec3(-2., -1., -1.)
+    horizontal = vec3(4., 0., 0.)
+    vertical = vec3(0., 2., 0.)
+    origin = vec3(0., 0., 0.)
 
-        self.type = "P3"
-        self.max_color = 255
+    for y in range(height):
+        for x in range(width):
+            u, v = x / 200, y / 100
+            direction = lower_left_corner + u*horizontal + v*vertical
+            color = Ray(origin, direction).color
+            pixels[x][y] = color
 
-    def write(self, file_name):
-        img_str = self.get()
-
-        with open(file_name, "w") as f:
-            f.write(img_str)
-
-    def get(self):
-        return \
-            f"""{self.type}
-{self.width} {self.height}
-{self.max_color}
-{self.get_formatted_pixels()}"""
-
-    def get_formatted_pixels(self):
-        pixel_str = ""
-        for j in range(self.height-1, 0, -1):
-            for i in range(self.width):
-                pixel = [
-                    int(255.99 * p) for p in [i / self.width, j / self.height, .2]
-                ]
-
-                r, g, b = pixel
-                pixel_str += f"{r} {g} {b} "
-            pixel_str += "\n"
-
-        return pixel_str
+    return pixels
 
 
 if __name__ == "__main__":
-    pixels = np.empty([200, 100])
+    pixels = get_example_pixels_np()
+
     P3Image(pixels).write('test.ppm')
