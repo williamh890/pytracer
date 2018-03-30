@@ -4,9 +4,11 @@ from utils import normalized, vec3, pixel
 
 import numpy as np
 
+WIDTH, HEIGHT = 200, 100
+
 
 def get_example_pixels_np():
-    pixels = np.empty([200, 100, 3], dtype="float")
+    pixels = np.empty([WIDTH, HEIGHT, 3], dtype="float")
     width, height, channels = pixels.shape
 
     lower_left_corner = vec3(-2., -1., -1.)
