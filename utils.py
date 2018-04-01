@@ -8,7 +8,7 @@ def normalized(a, axis=-1, order=2):
 
 
 def vec3(x, y, z):
-    return np.array([x, y, z])
+    return np.array([x, y, z], dtype="float")
 
 
 def pixel(r, g, b):
