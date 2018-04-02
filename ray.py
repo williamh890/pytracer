@@ -11,4 +11,3 @@ class Ray:
 
     def point_at_parameter(self, t):
         return self.origin + t * self.direction
-

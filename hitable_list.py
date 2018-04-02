@@ -1,4 +1,5 @@
 from hitable import Hitable
+from utils import Range
 
 
 class HitableList(Hitable):
@@ -6,13 +7,15 @@ class HitableList(Hitable):
         self.objects = objects
 
     def does_hit(self, ray, t_range):
-        closest_object, closest_hit = t_range.max, None
+        closest_object = None
 
         for thing in self.objects:
             maybe_hit = thing.does_hit(ray, t_range)
 
-            if maybe_hit is not None:
-                closest_hit = maybe_hit
-                closest_object = closest_hit.time
+            if maybe_hit is None:
+                continue
 
-        return closest_hit
+            closest_object = maybe_hit
+            t_range = Range(0, closest_object.time)
+
+        return closest_object

@@ -1,7 +1,7 @@
 from ray import Ray
 from p3 import P3Image
 from utils import normalized, vec3, pixel, Range
-from sphere import Sphere
+from sphere import PerlinSphere1, PerlinSphere2, CrazyPerlin
 from hitable_list import HitableList
 
 import numpy as np
@@ -25,7 +25,7 @@ def color(ray, world):
         t * vec3(.5, .7, 1.)
 
 
-def get_example_pixels_np():
+def get_pixels():
     pixels = np.empty([WIDTH, HEIGHT, 3], dtype="float")
     width, height, channels = pixels.shape
 
@@ -34,15 +34,19 @@ def get_example_pixels_np():
     vertical = vec3(0., 2., 0.)
     origin = vec3(0., 0., 0.)
 
-    focus = Sphere(
-        center=vec3(0., 0., -1.),
+    focus2 = PerlinSphere1(
+        center=vec3(-1., 0., -1.),
         radius=0.5
     )
-    ground = Sphere(
+    focus = CrazyPerlin(
+        center=vec3(1., 0., -1.),
+        radius=0.5
+    )
+    ground = PerlinSphere2(
         center=vec3(0., -100.5, -1.),
         radius=100.0
     )
-    world = HitableList([ground, focus])
+    world = HitableList([ground, focus, focus2])
 
     for y in range(height):
         for x in range(width):
@@ -55,6 +59,6 @@ def get_example_pixels_np():
 
 
 if __name__ == "__main__":
-    pixels = get_example_pixels_np()
+    pixels = get_pixels()
 
     P3Image(pixels).write('test.ppm')
