@@ -11,12 +11,12 @@ import random
 from multiprocessing import Pool
 # random.uniform(0, 1)
 
-WIDTH, HEIGHT, SAMPLES = 200, 100, 20
+WIDTH, HEIGHT, SAMPLES = 20, 10, 40
 INFINITY = sys.float_info.max
 
 
 def color(ray, world):
-    t_range = Range(0., INFINITY)
+    t_range = Range(0.001, INFINITY)
     hit = world.does_hit(ray, t_range)
 
     if hit is not None:
@@ -100,7 +100,7 @@ def trace_column(args):
             ray = camera.get_ray(u, v)
             total_samples += color(ray, world)
 
-        col[y] = total_samples / SAMPLES
+        col[y] = (total_samples / SAMPLES) ** .5
 
     return col
 
