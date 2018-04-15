@@ -1,8 +1,8 @@
-from ray import Ray
 from p3 import P3Image
 from utils import normalized, vec3, pixel, Range
 from sphere import RegularSphere
 from hitable_list import HitableList
+from camera import Camera
 
 import numpy as np
 import sys
@@ -34,6 +34,13 @@ def get_pixels():
     vertical = vec3(0., 2., 0.)
     origin = vec3(0., 0., 0.)
 
+    camera = Camera(
+        lower_left_corner,
+        horizontal,
+        vertical,
+        origin,
+    )
+
     focus = RegularSphere(
         center=vec3(0., 0., -1.),
         radius=0.5
@@ -47,8 +54,7 @@ def get_pixels():
     for y in range(height):
         for x in range(width):
             u, v = x / 200, y / 100
-            direction = lower_left_corner + u*horizontal + v*vertical
-            ray = Ray(origin, direction)
+            ray = camera.get_ray(u, v)
             c = color(ray, world)
 
             pixels[x][y] = c
