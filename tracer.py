@@ -6,8 +6,10 @@ from camera import Camera
 
 import numpy as np
 import sys
+import random
+# random.uniform(0, 1)
 
-WIDTH, HEIGHT = 200, 100
+WIDTH, HEIGHT, SAMPLES = 200, 100, 40
 INFINITY = sys.float_info.max
 
 
@@ -52,12 +54,18 @@ def get_pixels():
     world = HitableList([ground, focus])
 
     for y in range(height):
+        if y % 10 == 0:
+            print(y)
         for x in range(width):
-            u, v = x / 200, y / 100
-            ray = camera.get_ray(u, v)
-            c = color(ray, world)
+            total_samples = vec3(0, 0, 0)
+            for _ in range(SAMPLES):
+                u = (x + random.uniform(0, 1.)) / 200
+                v = (y + random.uniform(0, 1.)) / 100
 
-            pixels[x][y] = c
+                ray = camera.get_ray(u, v)
+                total_samples += color(ray, world)
+
+            pixels[x][y] = total_samples / SAMPLES
 
     return pixels
 
