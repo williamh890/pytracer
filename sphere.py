@@ -15,9 +15,9 @@ class Sphere(Hitable):
         oc = ray.origin - self.center
         d = ray.direction
         a = np.dot(d, d)
-        b = 2. * np.dot(oc, d)
+        b = np.dot(oc, d)
         c = np.dot(oc, oc) - self.radius**2
-        discriminate = b**2 - 4*a*c
+        discriminate = b**2 - a*c
 
         if discriminate > 0.:
             diff = (b*b-a*c)**.5
@@ -26,12 +26,14 @@ class Sphere(Hitable):
             if temp < t_range.max and temp > t_range.min:
                 p = ray.point_at_parameter(temp)
                 normal = self.get_normal(p)
+
                 return Hit(temp, p, normal)
 
             temp = (-b + diff) / a
             if temp < t_range.max and temp > t_range.min:
                 p = ray.point_at_parameter(temp)
                 normal = self.get_normal(p)
+
                 return Hit(temp, p, normal)
 
         return None
@@ -39,6 +41,11 @@ class Sphere(Hitable):
     @abstractmethod
     def get_normal(self, p):
         pass
+
+
+class RegularSphere(Sphere):
+    def get_normal(self, p):
+        return (p - self.center) / self.radius
 
 
 class PerlinSphere1(Sphere):

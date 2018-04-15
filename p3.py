@@ -1,3 +1,5 @@
+import numpy as np
+
 
 class P3Image:
     def __init__(self, pixels):
@@ -26,7 +28,7 @@ class P3Image:
 
     def get_formatted_pixels(self):
         self.pixels *= 255
-        pixels = self.pixels.astype('uint8')
+        pixels = np.clip(self.pixels, 0, 255).astype('uint8')
         pixel_str = ""
         for j in range(self.height-1, 0, -1):
             for i in range(self.width):
