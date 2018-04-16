@@ -32,6 +32,17 @@ def color(ray, world):
         t * vec3(.5, .7, 1.)
 
 
+def colors(rays, world):
+
+    t_ranges = np.full(
+        [WIDTH, HEIGHT, 2],
+        [0.001, INFINITY]
+        dtype="float"
+        )
+
+    hits = world.find_hits(rays, t_ranges)
+
+
 def random_in_unit_sphere():
     ones = vec3(1., 1., 1.)
     while True:
@@ -71,38 +82,39 @@ def get_pixels():
     )
     world = HitableList([ground, focus])
 
-    args = [
-        [x, world, camera] for x in range(width)
-    ]
+    row = np.arange(WIDTH)
+    row_percent = (np.tile(row, (HEIGHT, 1)) / 200).T
 
-    with Pool(8) as p:
-        rows = p.map_async(trace_column, args).get()
+    col = np.arange(HEIGHT)
+    col_percent = np.tile(col, (WIDTH, 1)) / 100
 
-    for x in range(WIDTH):
-        pixels[x] = rows[x]
+    rays = camera.get_rays(col_percent, row_percent)
+    cols = colors(rays, world)
+
+    return pixels
+
+    for x in range(width):
+        if x % 20 == 0:
+            print(x)
+
+        col = np.empty([HEIGHT, 3], dtype="float")
+        for y in range(HEIGHT):
+            total_samples = vec3(0, 0, 0)
+            for _ in range(SAMPLES):
+                u = (x + random.uniform(0, 1.)) / 200
+                v = (y + random.uniform(0, 1.)) / 100
+
+                ray = camera.get_ray(u, v)
+                total_samples += color(ray, world)
+
+            col[y] = (total_samples / SAMPLES) ** .5
+        pixels[x] = col
 
     return pixels
 
 
 def trace_column(args):
     x, world, camera = args
-
-    if x % 20 == 0:
-        print(x)
-
-    col = np.empty([HEIGHT, 3], dtype="float")
-    for y in range(HEIGHT):
-        total_samples = vec3(0, 0, 0)
-        for _ in range(SAMPLES):
-            u = (x + random.uniform(0, 1.)) / 200
-            v = (y + random.uniform(0, 1.)) / 100
-
-            ray = camera.get_ray(u, v)
-            total_samples += color(ray, world)
-
-        col[y] = (total_samples / SAMPLES) ** .5
-
-    return col
 
 
 if __name__ == "__main__":
