@@ -7,9 +7,10 @@ from abc import abstractmethod
 
 
 class Sphere(Hitable):
-    def __init__(self, center=None, radius=None):
+    def __init__(self, center=None, radius=None, material=None):
         self.center = center
         self.radius = radius
+        self.material = material
 
     def does_hit(self, ray, t_range):
         oc = ray.origin - self.center

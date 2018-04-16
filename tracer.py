@@ -1,5 +1,5 @@
 from p3 import P3Image
-from utils import normalized, vec3, pixel, Range
+from utils import normalized, vec3, pixel, Range, random_in_unit_sphere
 from sphere import RegularSphere
 from hitable_list import HitableList
 from camera import Camera
@@ -15,34 +15,26 @@ WIDTH, HEIGHT, SAMPLES = 20, 10, 40
 INFINITY = sys.float_info.max
 
 
-def color(ray, world):
+def color(ray, world, depth=0):
     t_range = Range(0.001, INFINITY)
     hit = world.does_hit(ray, t_range)
 
     if hit is not None:
-        target = hit.p + hit.normal + random_in_unit_sphere()
-        newRay = Ray(hit.p, target-hit.p)
+        if depth > 5:
+            return vec3(0, 0, 0)
 
-        return .5 * color(newRay, world)
+        scattered = hit.material.scatter(ray, hit)
+
+        if scattered is None:
+            return vec3(0, 0, 0)
+
+        return ray.attenuation * color(scattered, world, depth + 1)
 
     unit_dir = normalized(ray.direction)
     t = .5 * (unit_dir[1] + 1.)
 
     return (1. - t) * vec3(1., 1., 1.) + \
         t * vec3(.5, .7, 1.)
-
-
-def random_in_unit_sphere():
-    ones = vec3(1., 1., 1.)
-    while True:
-        p = 2 * vec3(
-            random.uniform(-1., 1.),
-            random.uniform(-1., 1.),
-            random.uniform(-1., 1.)
-        ) - ones
-
-        if p.dot(p) >= 1.0:
-            return p
 
 
 def get_pixels():
