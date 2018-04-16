@@ -1,6 +1,6 @@
 import numpy as np
 import collections
-from ABC import abstractmethod
+import random
 
 
 def normalized(a, axis=-1, order=2):
@@ -32,45 +32,6 @@ def random_in_unit_sphere():
 
 def reflect(v, n):
     return v - 2 * np.dot(v, n) * v
-
-
-class Material:
-    @abstractmethod
-    def scatter(ray_in, hit):
-        pass
-
-
-class Lambertian(Material):
-    def __init__(self, albedo):
-        self.albedo = self.albedo
-
-    def scatter(ray_in, hit):
-        target = hit.p + hit.normal + random_in_unit_sphere()
-
-        new_ray = Ray(
-            hit.p,
-            target - hit.p,
-            attenuation=self.albedo
-        )
-
-        return new_ray
-
-
-class Metal(Material):
-    def __init__(self, albedo):
-        self.albedo = self.albedo
-
-    def scatter(ray_in, hit):
-        reflected = reflect(normalized(ray_in.direction), hit.normal)
-
-        scattered = Ray(
-            hit.p,
-            reflected,
-            attenuation=self.albedo
-        )
-
-        if np.dot(scattered.direction, rec.normal) > 0:
-            return scattered
 
 
 Hit = collections.namedtuple('Hit', ['time', 'p', 'normal', 'material'])

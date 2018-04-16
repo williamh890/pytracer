@@ -7,7 +7,7 @@ class HitableList(Hitable):
         self.objects = objects
 
     def does_hit(self, ray, t_range):
-        closest_object = None
+        closest_hit = None
 
         for thing in self.objects:
             maybe_hit = thing.does_hit(ray, t_range)
@@ -15,7 +15,7 @@ class HitableList(Hitable):
             if maybe_hit is None:
                 continue
 
-            closest_object = maybe_hit
-            t_range = Range(0, closest_object.time)
+            closest_hit = maybe_hit
+            t_range = Range(0, closest_hit.time)
 
-        return closest_object
+        return closest_hit

@@ -1,5 +1,9 @@
 from p3 import P3Image
-from utils import normalized, vec3, pixel, Range, random_in_unit_sphere
+from utils import \
+    normalized, vec3, pixel, \
+    Range, random_in_unit_sphere
+from material import Metal, Lambertian
+
 from sphere import RegularSphere
 from hitable_list import HitableList
 from camera import Camera
@@ -11,7 +15,7 @@ import random
 from multiprocessing import Pool
 # random.uniform(0, 1)
 
-WIDTH, HEIGHT, SAMPLES = 20, 10, 40
+WIDTH, HEIGHT, SAMPLES = 200, 100, 10
 INFINITY = sys.float_info.max
 
 
@@ -20,15 +24,14 @@ def color(ray, world, depth=0):
     hit = world.does_hit(ray, t_range)
 
     if hit is not None:
-        if depth > 5:
+        if depth > 3:
             return vec3(0, 0, 0)
 
         scattered = hit.material.scatter(ray, hit)
-
         if scattered is None:
             return vec3(0, 0, 0)
 
-        return ray.attenuation * color(scattered, world, depth + 1)
+        return scattered.attenuation * color(scattered, world, depth + 1)
 
     unit_dir = normalized(ray.direction)
     t = .5 * (unit_dir[1] + 1.)
@@ -55,13 +58,28 @@ def get_pixels():
 
     focus = RegularSphere(
         center=vec3(0., 0., -1.),
-        radius=0.5
+        radius=0.5,
+        material=Lambertian(vec3(.8, .3, .3))
     )
+
+    focus1 = RegularSphere(
+        center=vec3(1., 0., -1.),
+        radius=0.5,
+        material=Lambertian(vec3(.8, .6, .2))
+    )
+
+    focus2 = RegularSphere(
+        center=vec3(-1., 0., -1.),
+        radius=0.5,
+        material=Lambertian(vec3(.8, .8, .8))
+    )
+
     ground = RegularSphere(
         center=vec3(0., -100.5, -1.),
-        radius=100.0
+        radius=100.0,
+        material=Lambertian(vec3(.8, .8, .0))
     )
-    world = HitableList([ground, focus])
+    world = HitableList([ground, focus, focus1, focus2])
 
     args = [
         [x, world, camera] for x in range(width)

@@ -28,14 +28,14 @@ class Sphere(Hitable):
                 p = ray.point_at_parameter(temp)
                 normal = self.get_normal(p)
 
-                return Hit(temp, p, normal)
+                return Hit(temp, p, normal, self.material)
 
             temp = (-b + diff) / a
             if temp < t_range.max and temp > t_range.min:
                 p = ray.point_at_parameter(temp)
                 normal = self.get_normal(p)
 
-                return Hit(temp, p, normal)
+                return Hit(temp, p, normal, self.material)
 
         return None
 
