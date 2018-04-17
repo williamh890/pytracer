@@ -31,7 +31,22 @@ def random_in_unit_sphere():
 
 
 def reflect(v, n):
-    return v - 2 * np.dot(v, n) * v
+    return v - 2 * np.dot(n, v) * n
+
+
+def refract(v, n, ni_over_nt):
+    unit_v = normalized(v)
+    dt = np.dot(unit_v, n)
+    discriminate = 1. - (ni_over_nt**2) * (1 - dt ** 2)
+
+    if discriminate > 0:
+        return ni_over_nt * (unit_v - n * dt) - n * discriminate ** .5
+
+
+def schlick(cosine, ref_idx):
+    r0 = ((1-ref_idx) / (1 + ref_idx)) ** 2
+
+    return r0 + ((1 - r0) * (1-cosine) ** 5)
 
 
 Hit = collections.namedtuple('Hit', ['time', 'p', 'normal', 'material'])

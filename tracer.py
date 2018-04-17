@@ -2,7 +2,8 @@ from p3 import P3Image
 from utils import \
     normalized, vec3, pixel, \
     Range, random_in_unit_sphere
-from material import Metal, Lambertian
+
+from material import Metal, Lambertian, Dielectric
 
 from sphere import RegularSphere
 from hitable_list import HitableList
@@ -15,7 +16,7 @@ import random
 from multiprocessing import Pool
 # random.uniform(0, 1)
 
-WIDTH, HEIGHT, SAMPLES = 200, 100, 10
+WIDTH, HEIGHT, SAMPLES, MAX_DEPTH = 640, 480, 10, 5
 INFINITY = sys.float_info.max
 
 
@@ -24,14 +25,15 @@ def color(ray, world, depth=0):
     hit = world.does_hit(ray, t_range)
 
     if hit is not None:
-        if depth > 3:
+        if depth >= MAX_DEPTH:
             return vec3(0, 0, 0)
 
         scattered = hit.material.scatter(ray, hit)
         if scattered is None:
             return vec3(0, 0, 0)
 
-        return scattered.attenuation * color(scattered, world, depth + 1)
+        new_ray, attenuation = scattered
+        return attenuation * color(new_ray, world, depth + 1)
 
     unit_dir = normalized(ray.direction)
     t = .5 * (unit_dir[1] + 1.)
@@ -57,21 +59,27 @@ def get_pixels():
     )
 
     focus = RegularSphere(
-        center=vec3(0., 0., -1.),
-        radius=0.5,
-        material=Lambertian(vec3(.8, .3, .3))
+        center=vec3(0., 0., -2.),
+        radius=.8,
+        material=Lambertian(vec3(.1, .2, .5))
+    )
+
+    focus3 = RegularSphere(
+        center=vec3(1., 1., -2.),
+        radius=.6,
+        material=Metal(vec3(.2, .2, .8))
     )
 
     focus1 = RegularSphere(
         center=vec3(1., 0., -1.),
         radius=0.5,
-        material=Lambertian(vec3(.8, .6, .2))
+        material=Dielectric(1.5)
     )
 
     focus2 = RegularSphere(
         center=vec3(-1., 0., -1.),
         radius=0.5,
-        material=Lambertian(vec3(.8, .8, .8))
+        material=Metal(vec3(.8, .6, .2))
     )
 
     ground = RegularSphere(
@@ -79,7 +87,7 @@ def get_pixels():
         radius=100.0,
         material=Lambertian(vec3(.8, .8, .0))
     )
-    world = HitableList([ground, focus, focus1, focus2])
+    world = HitableList([ground, focus, focus1, focus2, focus3])
 
     args = [
         [x, world, camera] for x in range(width)
@@ -104,8 +112,8 @@ def trace_column(args):
     for y in range(HEIGHT):
         total_samples = vec3(0, 0, 0)
         for _ in range(SAMPLES):
-            u = (x + random.uniform(0, 1.)) / 200
-            v = (y + random.uniform(0, 1.)) / 100
+            u = (x + random.uniform(0, 1.)) / WIDTH
+            v = (y + random.uniform(0, 1.)) / HEIGHT
 
             ray = camera.get_ray(u, v)
             total_samples += color(ray, world)

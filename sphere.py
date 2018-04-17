@@ -4,14 +4,14 @@ from utils import Hit, normalized, vec3
 import numpy as np
 import noise
 from abc import abstractmethod
+import collections
+
+SphereData = collections.namedtuple("SphereData", [
+    "center", "radius", "material"
+])
 
 
-class Sphere(Hitable):
-    def __init__(self, center=None, radius=None, material=None):
-        self.center = center
-        self.radius = radius
-        self.material = material
-
+class Sphere(SphereData, Hitable):
     def does_hit(self, ray, t_range):
         oc = ray.origin - self.center
         d = ray.direction
